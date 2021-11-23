@@ -1,9 +1,6 @@
 <template>
 
-<router-view v-slot="{ Component }">
-  <keep-alive include="Home" exclude="Details">
-    <component :is="Component" :key="$route.fullPath"></component>
-  </keep-alive>
+<router-view>
   </router-view>
 </template>
 

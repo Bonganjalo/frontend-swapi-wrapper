@@ -8,12 +8,10 @@
     <div class="form-outline">
       <input type="search" id="apolloSearch" class="form-control" placeholder="Search for a people... " 
       v-model="dataToSearched" />
-    </div>
-    <button  type="submit" class="btn btn-primary">
-      Search
-    </button>
+     </div>
     </form>
 </div>
+ <br><br>
   <table class="table">
   <thead class="thead-dark">
     <tr>
@@ -36,7 +34,7 @@
 
 import { gql } from 'graphql-tag';
 import { useQuery, useResult, provideApolloClient } from '@vue/apollo-composable'
-import {  ref } from 'vue'
+import {  onMounted, ref, watch } from 'vue'
 import { defaultClient } from '../apollo/apollo.client';
 provideApolloClient(defaultClient);
 
@@ -48,17 +46,27 @@ export default {
     const dataToSearched = ref("")
 
     const  handleSearch = () => {
+
       if (dataToSearched.value === "") {
         return;
       }
+
       let findPeople =  findByName(String(dataToSearched.value));
       people.value = (findPeople && findPeople.value && findPeople.value.results) ?  findPeople.value.results: [];
       
-      console.log('people ', findPeople);
-      console.log('people ', people);
+      console.log('Apollo Query results ', findPeople);
+      console.log('Reactive people ', people);
 
        dataToSearched.value = "";
     }
+
+    onMounted(() => {
+      people.value = JSON.parse(localStorage.peopleStored)
+    })
+    watch(people, (newPeople) => {
+      localStorage.peopleStored = JSON.stringify(newPeople);
+    });
+
 
     return { people , handleSearch, dataToSearched } ;
 
@@ -126,6 +134,14 @@ function findByName(searchName:string) {
 </script>
 
 <style>
+  .input-group form{
+    width: 100%;
+    margin-left: 25%;
+    margin-right: 25%;
+  }
 
+  .input-group input {
+   border: 1px solid black;
+  }
 
 </style>
