@@ -1,0 +1,12 @@
+  query Query {
+
+    findAll {
+      results {
+        name
+        height
+        mass
+        gender
+        homeworld
+      }
+    }
+  }
