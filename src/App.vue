@@ -1,9 +1,10 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </div>
-  <router-view/>
+
+<router-view v-slot="{ Component }">
+  <keep-alive include="Home" exclude="Details">
+    <component :is="Component" :key="$route.fullPath"></component>
+  </keep-alive>
+  </router-view>
 </template>
 
 <style>
@@ -11,17 +12,20 @@
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
+}
+
+#app h1 {
+  margin: 4rem;
+  text-align: center;
 }
 
 #nav {
   padding: 30px;
 }
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
+a:link {
+  text-decoration: none;
 }
 
 #nav a.router-link-exact-active {

@@ -3,13 +3,12 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import { DefaultApolloClient } from '@vue/apollo-composable'
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
+import { defaultClient } from './apollo/apollo.client';
 
-const defaultClient = new ApolloClient({
-    uri: 'https://tosd6.sse.codesandbox.io/',
-    cache: new InMemoryCache()
-  })
-  
+import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap"
+
+
   createApp(
     {
       setup () {
@@ -19,5 +18,5 @@ const defaultClient = new ApolloClient({
         return h(App)
       }
     }
-  ).use(store).use(router).mount('#app')
-// createApp(App).use(store).use(router).mount('#app')
+  ).use(store).use(router).use(store).mount('#app')
+

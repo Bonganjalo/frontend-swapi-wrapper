@@ -1,24 +1,74 @@
 <template>
   <div class="home">
-    {{ message }}
+  <h1> Swapi API Wrapper (Apollo) </h1>
+
+
+<div class="input-group">
+    <form  @submit.prevent @submit="handleSearch">
+    <div class="form-outline">
+      <input type="search" id="apolloSearch" class="form-control" placeholder="Search for a people... " 
+      v-model="dataToSearched" />
+    </div>
+    <button  type="submit" class="btn btn-primary">
+      Search
+    </button>
+    </form>
+</div>
+  <table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Name</th>
+    </tr>
+  </thead>
+  <tbody >
+    <tr v-for="(person, index) in people" :key="index">
+      <th scope="col">{{ index + 1 }}</th>
+      <router-link :to="{ name: 'Details', params: { name: person.name }}"><td spcope="col">{{ person.name}}</td></router-link>
+    </tr>
+  </tbody>
+</table>
   </div>
-    <ul>
-    <li v-for="person in people.results" :key="person.name">
-      <router-link :to="{ name: 'About', params: { name: person.name }}"><h2>{{ person.name}}</h2></router-link>
-    </li>
-  </ul>
+
 </template>
 
 <script lang="ts">
 
 import { gql } from 'graphql-tag';
-import { useQuery, useResult, useMutation } from '@vue/apollo-composable'
-// import allWinesQuery from '../graphql/queries/findAll.query.gql'
+import { useQuery, useResult, provideApolloClient } from '@vue/apollo-composable'
+import {  ref } from 'vue'
+import { defaultClient } from '../apollo/apollo.client';
+provideApolloClient(defaultClient);
+
+
+
 export default {
+  setup() {
+    const people = ref([])
+    const dataToSearched = ref("")
+
+    const  handleSearch = () => {
+      if (dataToSearched.value === "") {
+        return;
+      }
+      let findPeople =  findByName(String(dataToSearched.value));
+      people.value = (findPeople && findPeople.value && findPeople.value.results) ?  findPeople.value.results: [];
+      
+      console.log('people ', findPeople);
+      console.log('people ', people);
+
+       dataToSearched.value = "";
+    }
+
+    return { people , handleSearch, dataToSearched } ;
+
+   
     
-  
-   setup(){
-    const findAll = gql` query Query {
+  }
+}
+
+function findAll() {
+  const findAll = gql` query Query {
 
     findAll {
       results {
@@ -28,12 +78,54 @@ export default {
         gender
         homeworld
       }
+      next
     }
   }`
-    const { result } = useQuery(findAll)
-    const people = useResult(result, null, data => data.findAll)
-    return { people};
-    }
 
+  const { result } = useQuery(findAll);
+  const people = useResult(result, null, data => data.findAll);
+  return people;
 }
+
+function findBypage( pageNumber:number) {
+  const findBypage = gql` query Query($page: Int) {
+    findAllByPage(page: $page) {
+      next
+      results {
+        name
+      }
+    }
+  }`
+  
+  const { result } = useQuery(findBypage, { page: pageNumber })
+  const people = useResult(result, null, data => data.findAllByPage)
+  return people;
+}
+
+function findByName(searchName:string) {
+  console.log("Search name in fyByName ", JSON.stringify(searchName));
+  const findByName = gql`query Query($name: String) {
+    findByName(name: $name) {
+      next
+      previous
+      results {
+        name
+        height
+        mass
+        gender
+        homeworld
+      }
+    }
+  }`
+
+  const { result } = useQuery(findByName, { name: searchName } )
+  const people = useResult(result, null, data => data.findByName)
+  return people;
+}
+
 </script>
+
+<style>
+
+
+</style>
